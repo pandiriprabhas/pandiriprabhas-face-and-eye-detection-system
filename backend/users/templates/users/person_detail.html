@@ -1,0 +1,52 @@
+{% extends "users/base.html" %}
+{% block title %}{{ person.name }} | Face QR Identity System{% endblock %}
+{% block content %}
+  <section class="hero">
+    <div class="panel">
+      <h1 class="headline" style="font-size: 2.2rem;">{{ person.name }}</h1>
+      <p class="subtle"><strong>Unique Number:</strong> {{ person.unique_number }}</p>
+      <p class="subtle"><strong>Unique Code:</strong> {{ person.unique_code }}</p>
+      <p class="subtle"><strong>Address:</strong><br>{{ person.address }}</p>
+      <p class="subtle"><strong>Created:</strong> {{ person.created_at }}</p>
+    </div>
+    <div class="panel face-box qr-box">
+      <h3 style="margin-top: 0;">Face and QR</h3>
+      <div style="display: grid; gap: 14px;">
+        <div>
+          <div class="muted" style="margin-bottom: 8px;">Captured face</div>
+          <img src="{{ person.face_image.url }}" alt="{{ person.name }} face image">
+        </div>
+        {% if person.qr_code_image %}
+          <div>
+            <div class="muted" style="margin-bottom: 8px;">Generated QR</div>
+            <img src="{{ person.qr_code_image.url }}?v={{ person.updated_at|date:'U' }}" alt="QR code for {{ person.name }}">
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top: 18px;">
+    <h2 style="margin-top: 0;">Profile History</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Time</th>
+          <th>Payload</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in history_events %}
+          <tr>
+            <td>{{ event.get_action_display }}</td>
+            <td>{{ event.created_at }}</td>
+            <td class="muted">{{ event.payload }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3" class="muted">No history yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}
