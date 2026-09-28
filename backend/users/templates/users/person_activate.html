@@ -1,0 +1,26 @@
+{% extends "users/base.html" %}
+{% block title %}QR Activated | Face QR Identity System{% endblock %}
+{% block content %}
+  <section class="hero">
+    <div class="panel">
+      <div class="pill-row">
+        <span class="pill" style="color: #72e3c7;">QR Activated</span>
+        <span class="pill">Unique Number: {{ person.unique_number }}</span>
+      </div>
+      <h1 class="headline" style="font-size: 2.4rem;">{{ person.name }}</h1>
+      <p class="subtle">The QR has opened successfully. This is the activation screen for the registered person.</p>
+      <p class="subtle"><strong>Address:</strong><br>{{ person.address }}</p>
+      <p class="subtle"><strong>Unique Code:</strong> {{ person.unique_code }}</p>
+    </div>
+    <div class="panel face-box qr-box">
+      <h3 style="margin-top: 0;">Identity Snapshot</h3>
+      <img src="{{ person.face_image.url }}" alt="{{ person.name }} face image">
+      {% if person.qr_code_image %}
+        <div style="margin-top: 14px;">
+          <div class="muted" style="margin-bottom: 8px;">QR Image</div>
+          <img src="{{ person.qr_code_image.url }}" alt="QR code for {{ person.name }}">
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
