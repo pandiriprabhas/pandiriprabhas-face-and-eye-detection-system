@@ -1,0 +1,21 @@
+{% extends "users/base.html" %}
+{% block title %}QR Scan | Face QR Identity System{% endblock %}
+{% block content %}
+  <section class="hero">
+    <div class="panel">
+      <div class="pill-row">
+        <span class="pill" style="color: #72e3c7;">QR Scan Success</span>
+        <span class="pill">Fast View</span>
+      </div>
+      <h1 class="headline" style="font-size: 2.2rem; margin-bottom: 8px;">{{ person.name }}</h1>
+      <p class="subtle"><strong>Unique Number:</strong> {{ person.unique_number }}</p>
+      <p class="subtle"><strong>Unique Code:</strong> {{ person.unique_code }}</p>
+      <p class="subtle"><strong>Address:</strong><br>{{ person.address }}</p>
+      <p class="subtle"><strong>Created:</strong> {{ person.created_at }}</p>
+      <div class="pill-row" style="margin-top: 14px;">
+        <a class="button" href="{{ full_profile_url }}">Open Full Profile</a>
+      </div>
+      <p class="muted" style="margin-top: 10px;">This scan page is optimized for quick mobile response and avoids loading heavy images by default.</p>
+    </div>
+  </section>
+{% endblock %}
