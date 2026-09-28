@@ -1,0 +1,37 @@
+{% extends "users/base.html" %}
+{% block title %}History | Face QR Identity System{% endblock %}
+{% block content %}
+  <section class="panel" style="margin-top: 18px;">
+    <h1 class="headline" style="font-size: 2rem;">Person History</h1>
+    <p class="subtle">Every registration and QR scan is recorded here so you can audit the person record over time.</p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Person</th>
+          <th>Action</th>
+          <th>Time</th>
+          <th>Payload</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events %}
+          <tr>
+            <td><a href="{% url 'users:person_detail' event.person.unique_code %}">{{ event.person.name }}</a></td>
+            <td>{{ event.get_action_display }}</td>
+            <td>{{ event.created_at }}</td>
+            <td class="muted">{{ event.payload }}</td>
+            <td>
+              <form action="{% url 'users:delete_person' event.person.unique_code %}" method="post" onsubmit="return confirm('Delete this person and all related history?');">
+                {% csrf_token %}
+                <button class="button" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="muted">No history available yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endblock %}
