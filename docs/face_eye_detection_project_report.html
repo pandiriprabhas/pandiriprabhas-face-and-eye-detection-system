@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Face and Eye Detection Project Report</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;line-height:1.6;color:#1f2937;padding:0 20px}
+h1,h2{color:#0f172a} code,pre{background:#f3f4f6;padding:2px 5px;border-radius:4px}
+table{border-collapse:collapse;width:100%}th,td{border:1px solid #d1d5db;padding:8px;text-align:left}
+</style>
+</head>
+<body>
+<h1>Face and Eye Detection Project Report</h1>
+<p>This project combines Django, OpenCV, QR generation and a mobile-friendly workflow to register people, validate a face and both eyes, generate a QR identity, and retrieve a profile after scanning.</p>
+
+<h2>Objectives</h2>
+<ul>
+<li>Detect a human face and eyes from an uploaded or captured image.</li>
+<li>Register a person with name, address, unique number and face image.</li>
+<li>Generate a unique QR code linked to the registered profile.</li>
+<li>Maintain registration and scan history.</li>
+<li>Provide REST API endpoints for person data and face validation.</li>
+</ul>
+
+<h2>Technologies</h2>
+<table>
+<tr><th>Technology</th><th>Purpose</th></tr>
+<tr><td>Python</td><td>Main programming language</td></tr>
+<tr><td>Django</td><td>Backend web framework</td></tr>
+<tr><td>Django REST Framework</td><td>REST APIs</td></tr>
+<tr><td>OpenCV</td><td>Face and eye detection</td></tr>
+<tr><td>SQLite</td><td>Development database</td></tr>
+<tr><td>qrcode + Pillow</td><td>QR image generation</td></tr>
+<tr><td>HTML/CSS/JavaScript</td><td>Dashboard and browser camera flow</td></tr>
+<tr><td>Cloudflared</td><td>HTTPS tunnel for mobile access</td></tr>
+</table>
+
+<h2>Project Structure</h2>
+<pre>
+backend/   Django project and users app
+frontend/  Standalone frontend page
+src/       OpenCV command-line and GUI tools
+tests/     OpenCV cascade tests
+android/   Android sample and setup guide
+scripts/   Project report generators
+docs/      Generated reports
+</pre>
+
+<h2>Working Flow</h2>
+<ol>
+<li>User opens the Django dashboard.</li>
+<li>User enters name, address and unique number.</li>
+<li>User captures or uploads a face image.</li>
+<li>OpenCV checks for a face and both eyes.</li>
+<li>The person is stored in SQLite.</li>
+<li>A QR code is generated for the profile URL.</li>
+<li>Scanning the QR opens the profile and records scan history.</li>
+</ol>
+
+<h2>Important Commands</h2>
+<pre>python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python backend/manage.py migrate
+python backend/manage.py runserver
+AUTO_TUNNEL=1 FORCE_RESTART=1 APP_PORT=8001 bash run_mobile_server.sh
+pytest</pre>
+
+<h2>Advantages</h2>
+<ul>
+<li>Simple and understandable student/project implementation.</li>
+<li>Combines computer vision, web development and QR workflows.</li>
+<li>Supports browser camera capture and mobile profile access.</li>
+<li>Keeps a basic audit history of registrations and QR scans.</li>
+</ul>
+
+<h2>Limitations</h2>
+<ul>
+<li>Haar cascades are less accurate than modern deep-learning detectors.</li>
+<li>Detection depends on lighting, camera quality and face angle.</li>
+<li>SQLite is suitable mainly for development and small deployments.</li>
+<li>Production use should add stronger authentication, privacy and security controls.</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>The system demonstrates a complete face-and-eye detection workflow integrated with Django and QR identity generation. It is suitable for learning, demonstrations and prototype identity-registration applications.</p>
+</body>
+</html>
