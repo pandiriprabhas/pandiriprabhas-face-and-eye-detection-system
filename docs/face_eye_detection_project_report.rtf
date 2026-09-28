@@ -1,0 +1,65 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+\fs32\b Face and Eye Detection Project Report\b0\fs24\par
+\par
+This project combines Django, OpenCV, QR generation and a mobile-friendly workflow to register people, validate a face and both eyes, generate a QR identity, and retrieve a profile after scanning.\par
+\par
+\b Objectives\b0\par
+- Detect a human face and eyes from an uploaded or captured image.\par
+- Register a person with name, address, unique number and face image.\par
+- Generate a unique QR code linked to the registered profile.\par
+- Maintain registration and scan history.\par
+- Provide REST API endpoints for person data and face validation.\par
+\par
+\b Technologies\b0\par
+Python - main programming language.\par
+Django - backend web framework.\par
+Django REST Framework - REST APIs.\par
+OpenCV - face and eye detection.\par
+SQLite - development database.\par
+qrcode and Pillow - QR image generation.\par
+HTML, CSS and JavaScript - dashboard and browser camera workflow.\par
+Cloudflared - HTTPS tunnel for mobile access.\par
+\par
+\b Project Structure\b0\par
+backend/ - Django project and users app.\par
+frontend/ - standalone frontend page.\par
+src/ - OpenCV command-line and GUI tools.\par
+tests/ - OpenCV cascade tests.\par
+android/ - Android sample and setup guide.\par
+scripts/ - project report generators.\par
+docs/ - generated reports.\par
+\par
+\b Working Flow\b0\par
+1. User opens the Django dashboard.\par
+2. User enters name, address and unique number.\par
+3. User captures or uploads a face image.\par
+4. OpenCV checks for a face and both eyes.\par
+5. The person is stored in SQLite.\par
+6. A QR code is generated for the profile URL.\par
+7. Scanning the QR opens the profile and records scan history.\par
+\par
+\b Important Commands\b0\par
+python3 -m venv .venv\par
+source .venv/bin/activate\par
+pip install -r requirements.txt\par
+python backend/manage.py migrate\par
+python backend/manage.py runserver\par
+AUTO_TUNNEL=1 FORCE_RESTART=1 APP_PORT=8001 bash run_mobile_server.sh\par
+pytest\par
+\par
+\b Advantages\b0\par
+- Simple student/project implementation.\par
+- Combines computer vision, web development and QR workflows.\par
+- Supports browser camera capture and mobile profile access.\par
+- Keeps registration and QR scan history.\par
+\par
+\b Limitations\b0\par
+- Haar cascades are less accurate than modern deep-learning detectors.\par
+- Detection depends on lighting, camera quality and face angle.\par
+- SQLite is mainly suitable for development and small deployments.\par
+- Production use should add stronger authentication, privacy and security controls.\par
+\par
+\b Conclusion\b0\par
+The system demonstrates a complete face-and-eye detection workflow integrated with Django and QR identity generation. It is suitable for learning, demonstrations and prototype identity-registration applications.\par
+}
