@@ -1,0 +1,247 @@
+{% extends "users/base.html" %}
+{% block title %}Dashboard | Face QR Identity System{% endblock %}
+{% block content %}
+  <section class="hero">
+    <div class="panel">
+      <div class="pill-row">
+        <span class="pill">Face capture</span>
+        <span class="pill">Unique QR code</span>
+        <span class="pill">Address history</span>
+        <span class="pill">QR detail scan</span>
+      </div>
+      <h1 class="headline">Register a person, generate a QR, and keep the full record in one dashboard.</h1>
+      <p class="subtle">
+        Capture a live photo or upload a face image, store the name, address, and unique number, and the backend will create a unique code and QR image
+        that points to the full person profile. The dashboard also keeps a running history of registrations and scans.
+      </p>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top: 0;">System Summary</h3>
+      <p class="subtle">This interface is backed by Django, Django REST Framework, OpenCV face detection, and qrcode.</p>
+      {% if public_url_warning %}
+        <p class="subtle" style="color: #ffd166;">
+          QR links are currently using a local address. To scan from a phone, set PUBLIC_BASE_URL to your computer's LAN IP or public domain. Current QR base: {{ qr_base_url }}
+        </p>
+      {% endif %}
+      <div class="pill-row">
+        <span class="pill">Backend: Django</span>
+        <span class="pill">API: DRF</span>
+        <span class="pill">QR: qrcode</span>
+        <span class="pill">Face: OpenCV</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Register Person</h2>
+      <p class="muted" style="margin-top: -4px; margin-bottom: 16px;">Fill the details, activate the camera session, capture the photo, and create the record.</p>
+      <form class="form-grid" action="{% url 'users:register_person' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="field">
+          <label for="id_name">Name</label>
+          {{ form.name }}
+          {{ form.name.errors }}
+        </div>
+        <div class="field">
+          <label for="id_address">Address</label>
+          {{ form.address }}
+          {{ form.address.errors }}
+        </div>
+        <div class="field">
+          <label for="id_unique_number">Unique Number</label>
+          {{ form.unique_number }}
+          <small class="muted">This must be different for every person. Django will block duplicates.</small>
+          {{ form.unique_number.errors }}
+        </div>
+        <div class="field">
+          <label for="id_face_image">Face Image</label>
+          <div class="camera-shell camera-shell-minimal">
+            <video id="cameraPreview" autoplay playsinline muted></video>
+            <canvas id="cameraCanvas" hidden></canvas>
+            <div class="pill-row" style="margin-top: 12px;">
+              <button class="button" type="button" id="startCameraBtn">Activate Camera Session</button>
+              <button class="button" type="button" id="capturePhotoBtn">Capture Photo</button>
+              <button class="button" type="button" id="stopCameraBtn">Stop Camera</button>
+            </div>
+            {{ form.face_image }}
+          </div>
+          {{ form.face_image.errors }}
+        </div>
+        <button class="button" type="submit">Create QR Identity</button>
+      </form>
+    </article>
+
+    <article class="card">
+      <h2>Latest People</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Unique Number</th>
+            <th>Code</th>
+            <th>Profile</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for person in people %}
+            <tr>
+              <td>{{ person.name }}</td>
+              <td>{{ person.unique_number }}</td>
+              <td>{{ person.unique_code }}</td>
+              <td><a class="button" href="{% url 'users:person_detail_full' person.unique_code %}">Open</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4" class="muted">No people registered yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </article>
+
+    <article class="card" style="grid-column: span 12;">
+      <h2>Recent Activity</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Person</th>
+            <th>Action</th>
+            <th>Time</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in history %}
+            <tr>
+              <td>{{ item.person.name }}</td>
+              <td>{{ item.get_action_display }}</td>
+              <td>{{ item.created_at }}</td>
+              <td class="muted">{{ item.payload }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4" class="muted">Activity history will appear here after the first registration.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </article>
+  </section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const startBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('capturePhotoBtn');
+    const stopBtn = document.getElementById('stopCameraBtn');
+    const video = document.getElementById('cameraPreview');
+    const canvas = document.getElementById('cameraCanvas');
+    const fileInput = document.getElementById('id_face_image');
+    if (!startBtn || !captureBtn || !stopBtn || !video || !canvas || !fileInput) return;
+
+    let stream = null;
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+      }
+      return '';
+    }
+
+    function cameraFriendlyHost() {
+      return ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    }
+
+    function localhostUrl() {
+      return `${window.location.protocol}//127.0.0.1:${window.location.port}${window.location.pathname}${window.location.search}${window.location.hash}`;
+    }
+
+    if (window.location.hostname === '0.0.0.0') {
+      window.location.replace(localhostUrl());
+      return;
+    }
+
+    async function validateSelectedImage() {
+      if (!fileInput.files || fileInput.files.length === 0) {
+        return;
+      }
+      const csrfToken = getCookie('csrftoken');
+      const formData = new FormData();
+      formData.append('face_image', fileInput.files[0]);
+
+      try {
+        const response = await fetch('/api/validate-face/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+          },
+          body: formData,
+        });
+        await response.json();
+      } catch (error) {
+        console.warn('Validation request failed', error);
+      }
+    }
+
+    async function startCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        return;
+      }
+
+      if (!window.isSecureContext && !cameraFriendlyHost()) {
+        if (window.location.hostname === '0.0.0.0') {
+          window.location.href = localhostUrl();
+          return;
+        }
+        return;
+      }
+
+      try {
+        const preferredConstraints = { video: { facingMode: { ideal: 'user' } }, audio: false };
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(preferredConstraints);
+        } catch (innerError) {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
+        video.srcObject = stream;
+      } catch (error) {
+        console.warn('Camera unavailable', error);
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      video.srcObject = null;
+    }
+
+    async function capturePhoto() {
+      if (!video.srcObject) {
+        await startCamera();
+        if (!video.srcObject) return;
+      }
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const file = new File([blob], 'webcam-capture.jpg', { type: 'image/jpeg' });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+        validateSelectedImage();
+      }, 'image/jpeg', 0.92);
+    }
+
+    startBtn.addEventListener('click', startCamera);
+    captureBtn.addEventListener('click', capturePhoto);
+    stopBtn.addEventListener('click', stopCamera);
+    fileInput.addEventListener('change', validateSelectedImage);
+    window.addEventListener('beforeunload', stopCamera);
+  }());
+</script>
+{% endblock %}
