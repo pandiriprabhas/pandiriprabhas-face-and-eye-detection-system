@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Face QR Identity System</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #0b1220, #16233a);
+      color: #ecf2ff;
+      font-family: "Trebuchet MS", "Verdana", sans-serif;
+    }
+    .card {
+      width: min(720px, calc(100vw - 32px));
+      padding: 32px;
+      border-radius: 28px;
+      background: rgba(17, 27, 45, 0.86);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+    }
+    h1 { margin-top: 0; font-size: clamp(2rem, 4vw, 3.3rem); }
+    p { line-height: 1.7; color: #93a4c3; }
+    a {
+      display: inline-block; margin-top: 18px; padding: 12px 16px; border-radius: 999px;
+      color: #0b1220; background: #72e3c7; text-decoration: none; font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Face QR Identity System</h1>
+    <p>This folder can host a React frontend later. The current implementation serves the main interface through Django templates and a REST API.</p>
+    <a href="http://127.0.0.1:8000/">Open Django dashboard</a>
+  </main>
+</body>
+</html>
